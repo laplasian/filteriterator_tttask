@@ -1,0 +1,38 @@
+FilterIteratorTypedTest.FiltersValues<int> 2 0.00539655
+FilterIteratorTypedTest.FiltersValues<unsigned 0 1
+FilterIteratorTypedTest.FiltersValues<long> 2 0.00573195
+FilterIteratorTypedTest.FiltersValues<float> 2 0.0047393
+FilterIteratorTypedTest.FiltersValues<double> 2 0.00537585
+FilterIteratorTest.EmptyRange 2 0.00652645
+FilterIteratorTest.NoMatchingElements 2 0.00507515
+FilterIteratorTest.AllElementsMatch 2 0.0061323
+FilterIteratorTest.FirstAndLastElementsMatch 2 0.006033
+FilterIteratorTest.WorksWithStdList 2 0.0058891
+FilterIteratorTest.RandomData 2 0.008015
+FilterIteratorTest.CustomType 2 0.00712605
+FilterIteratorTypedTest.FiltersValues<int> 2 0.00539655
+FilterIteratorTypedTest.FiltersValues<unsigned 0 1
+FilterIteratorTypedTest.FiltersValues<long> 2 0.00573195
+FilterIteratorTypedTest.FiltersValues<float> 2 0.0047393
+FilterIteratorTypedTest.FiltersValues<double> 2 0.00537585
+FilterIteratorTest.EmptyRange 2 0.00652645
+FilterIteratorTest.NoMatchingElements 2 0.00507515
+FilterIteratorTest.AllElementsMatch 2 0.0061323
+FilterIteratorTest.FirstAndLastElementsMatch 2 0.006033
+FilterIteratorTest.WorksWithStdList 2 0.0058891
+FilterIteratorTest.RandomData 2 0.008015
+FilterIteratorTest.CustomType 2 0.00712605
+FilterIteratorTypedTest.FiltersValues<int> 1 0.015361
+FilterIteratorTypedTest.FiltersValues<unsigned int> 1 0.0124462
+FilterIteratorTypedTest.FiltersValues<long> 1 0.0136102
+FilterIteratorTypedTest.FiltersValues<float> 1 0.0121429
+FilterIteratorTypedTest.FiltersValues<double> 1 0.0122977
+FilterIteratorTest.EmptyRange 1 0.0146595
+FilterIteratorTest.NoMatchingElements 1 0.0139711
+FilterIteratorTest.AllElementsMatch 1 0.0118795
+FilterIteratorTest.FirstAndLastElementsMatch 1 0.0113435
+FilterIteratorTest.WorksWithStdList 1 0.0091064
+FilterIteratorTest.RandomData 1 0.0111378
+FilterIteratorTest.CustomType 1 0.0096963
+FilterIteratorTypedTest.FiltersValues<unsigned int> 1 0.0102068
+---

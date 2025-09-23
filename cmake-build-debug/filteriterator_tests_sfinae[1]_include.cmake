@@ -1,0 +1,5 @@
+if(EXISTS "C:/Users/user/CLionProjects/filteriterator/cmake-build-debug/filteriterator_tests_sfinae[1]_tests.cmake")
+  include("C:/Users/user/CLionProjects/filteriterator/cmake-build-debug/filteriterator_tests_sfinae[1]_tests.cmake")
+else()
+  add_test(filteriterator_tests_sfinae_NOT_BUILT filteriterator_tests_sfinae_NOT_BUILT)
+endif()
