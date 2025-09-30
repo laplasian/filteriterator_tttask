@@ -5,12 +5,13 @@
 #include <gtest/gtest.h>
 #include <random>
 #include <array>
+#include <deque>
 #include <list>
 
 #if defined(USE_CONCEPTS)
-#include "filteriterator_SFINAE.hpp"
-#else
 #include "filteriterator.hpp"
+#else
+#include "filteriterator_SFINAE.hpp"
 #endif
 
 struct CustomStruct {
@@ -22,75 +23,140 @@ struct CustomStruct {
     }
 };
 
+#define MAKE_RA_ITERS(T_) std::vector<T_>, std::deque<T_>
 
 template <typename T>
 class FilterIteratorTypedTest : public ::testing::Test {};
+using MyTypes = ::testing::Types<MAKE_RA_ITERS(char), MAKE_RA_ITERS(unsigned char), MAKE_RA_ITERS(short), \
+    MAKE_RA_ITERS(unsigned short), MAKE_RA_ITERS(int), MAKE_RA_ITERS(long), MAKE_RA_ITERS(float), MAKE_RA_ITERS(double)>;
 
-using MyTypes = ::testing::Types<int, unsigned int, long, float, double>;
-TYPED_TEST_SUITE(FilterIteratorTypedTest, MyTypes);
+TYPED_TEST_CASE(FilterIteratorTypedTest, MyTypes);
+
+/// OPERATOR TESTs
+/// cstyle
 
 TYPED_TEST(FilterIteratorTypedTest, FiltersValues) {
-    using T = TypeParam;
-    std::vector<T> data = {T(6), T(9), T(0), T(1), T(2), T(3.5)};
-    std::vector<T> expected = {T(6), T(9), T(3.5)};
+    using paramtype = typename TypeParam::value_type;
 
-    auto range = iterator::filter_range(data.begin(), data.end(), [](T val){ return val > 2; });
+    TypeParam data;
+    TypeParam expected;
 
-    std::vector<T> result;
+    if constexpr (std::is_same_v<paramtype, char> || std::is_same_v<paramtype, unsigned char>) {
+        data = {6, 9, 0, 1, 2, 3};
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, short> || std::is_same_v<paramtype, unsigned short>) {
+        data = {6, 9, 0, 1, 2, 3};
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, int> || std::is_same_v<paramtype, unsigned int>) {
+        data = {6, 9, 0, 1, 2, 3};
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, long>) {
+        data = {6, 9, 0, 1, 2, 3};
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, float>) {
+        data = {6.1f, 9.2f, 0.3f, 1.4f, 2.0f, 3.5f};
+        expected = {6.1f, 9.2f, 3.5f};
+    } else if constexpr (std::is_same_v<paramtype, double>) {
+        data = {6.1, 9.2, 0.3, 1.4, 2.0, 3.5};
+        expected = {6.1, 9.2, 3.5};
+    }
+
+    auto range = iterator::filter_range(data.begin(), data.end(), [](paramtype val){ return val > 2; });
+
+    TypeParam result;
     std::copy(range.begin(), range.end(), std::back_inserter(result));
 
-    ASSERT_EQ(result.size(), expected.size());
-    for (size_t i = 0; i < result.size(); ++i) {
-        if constexpr (std::is_floating_point_v<T>) {
-            ASSERT_FLOAT_EQ(result[i], expected[i]);
+    EXPECT_EQ(result.size(), expected.size());
+    auto res_it = result.begin();
+    auto exp_it = expected.begin();
+    for (; res_it != result.end(); ++res_it, ++exp_it) {
+        if constexpr (std::is_floating_point_v<paramtype>) {
+            EXPECT_NEAR(*res_it, *exp_it, 10e-6);
         } else {
-            ASSERT_EQ(result[i], expected[i]);
+            EXPECT_EQ(*res_it, *exp_it);
         }
     }
 }
 
-TEST(FilterIteratorTest, EmptyRange) {
-    std::vector<int> data = {};
-    auto range = iterator::filter_range(data.begin(), data.end(), [](int v){ return v > 0; });
-    ASSERT_EQ(range.begin(), range.end());
-    ASSERT_EQ(std::distance(range.begin(), range.end()), 0);
+TYPED_TEST(FilterIteratorTypedTest, EmptyRange) {
+    TypeParam data = {};
+    using paramtype = typename TypeParam::value_type;
+    auto range = iterator::filter_range(data.begin(), data.end(), [](paramtype v){ return v > 0; });
+    EXPECT_EQ(range.begin(), range.end());
+    EXPECT_EQ(std::distance(range.begin(), range.end()), 0);
 }
 
-TEST(FilterIteratorTest, NoMatchingElements) {
-    std::vector<int> data = {1, 2, 3, 4, 5};
-    auto range = iterator::filter_range(data.begin(), data.end(), [](int v){ return v > 10; });
-    ASSERT_EQ(range.begin(), range.end());
+TYPED_TEST(FilterIteratorTypedTest, NoMatchingElements) {
+    using paramtype = typename TypeParam::value_type;
+    TypeParam data;
+
+    if constexpr (std::is_same_v<paramtype, char> || std::is_same_v<paramtype, unsigned char>) {
+        data = {1, 2, 3, 4, 5};
+    } else if constexpr (std::is_same_v<paramtype, short> || std::is_same_v<paramtype, unsigned short>) {
+        data = {1, 2, 3, 4, 5};
+    } else if constexpr (std::is_same_v<paramtype, int> || std::is_same_v<paramtype, unsigned int>) {
+        data = {1, 2, 3, 4, 5};
+    } else if constexpr (std::is_same_v<paramtype, long>) {
+        data = {1, 2, 3, 4, 5};
+    } else if constexpr (std::is_same_v<paramtype, float>) {
+        data = {1.1f, 2.2f, 3.3f, 4.4f, 5.5f};
+    } else if constexpr (std::is_same_v<paramtype, double>) {
+        data = {1.1, 2.2, 3.3, 4.4, 5.5};
+    }
+
+    auto range = iterator::filter_range(data.begin(), data.end(), [](paramtype v){ return v > 10; });
+    EXPECT_EQ(range.begin(), range.end());
 }
 
-TEST(FilterIteratorTest, AllElementsMatch) {
-    std::vector<int> data = {10, 20, 30};
-    auto range = iterator::filter_range(data.begin(), data.end(), [](int v){ return v > 5; });
+TYPED_TEST(FilterIteratorTypedTest, AllElementsMatch) {
+    using paramtype = typename TypeParam::value_type;
+    TypeParam data;
 
-    std::vector<int> result;
+    if constexpr (std::is_same_v<paramtype, char> || std::is_same_v<paramtype, unsigned char>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, short> || std::is_same_v<paramtype, unsigned short>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, int> || std::is_same_v<paramtype, unsigned int>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, long>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, float>) {
+        data = {10.1f, 20.2f, 30.3f};
+    } else if constexpr (std::is_same_v<paramtype, double>) {
+        data = {10.1, 20.2, 30.3};
+    }
+
+    auto range = iterator::filter_range(data.begin(), data.end(), [](paramtype v){ return v > 5; });
+
+    TypeParam result;
     std::copy(range.begin(), range.end(), std::back_inserter(result));
 
-    ASSERT_EQ(result, data);
+    EXPECT_EQ(result.size(), data.size());
+    auto res_it = result.begin();
+    auto data_it = data.begin();
+    for (; res_it != result.end(); ++res_it, ++data_it) {
+        if constexpr (std::is_floating_point_v<paramtype>) {
+            EXPECT_NEAR(*res_it, *data_it, 10e-6);
+        } else {
+            EXPECT_EQ(*res_it, *data_it);
+        }
+    }
 }
 
-TEST(FilterIteratorTest, FirstAndLastElementsMatch) {
-    std::vector<int> data = {10, 1, 2, 3, 20};
-    std::vector<int> expected = {10, 20};
-    auto range = iterator::filter_range(data.begin(), data.end(), [](int v){ return v % 10 == 0; });
+TYPED_TEST(FilterIteratorTypedTest, FirstAndLastElementsMatch) {
+    using paramtype = typename TypeParam::value_type;
+    TypeParam data = {static_cast<paramtype>(10), static_cast<paramtype>(1), static_cast<paramtype>(2),
+        static_cast<paramtype>(3), static_cast<paramtype>(20)};
+    TypeParam expected = {10, 20};
+    auto range = iterator::filter_range(data.begin(), data.end(), [](paramtype v){ return static_cast<int>(v) % 10 == 0; });
 
-    std::vector<int> result(range.begin(), range.end());
-    ASSERT_EQ(result, expected);
+    TypeParam result;
+    std::copy(range.begin(), range.end(), std::back_inserter(result));
+    EXPECT_EQ(result.size(), expected.size());
+    EXPECT_EQ(result, expected);
 }
 
-TEST(FilterIteratorTest, WorksWithStdList) {
-    std::list<int> data = {1, 2, 3, 4, 5, 6};
-    std::list<int> expected = {2, 4, 6};
-    auto range = iterator::filter_range(data.begin(), data.end(), [](int v){ return v % 2 == 0; });
-
-    std::list<int> result(range.begin(), range.end());
-    ASSERT_EQ(result, expected);
-}
-
-TEST(FilterIteratorTest, RandomData) {
+TEST(FilterIteratorTypedTest, RandomData) {
     std::vector<int> data;
     std::vector<int> expected;
     std::mt19937 gen(42);
@@ -106,18 +172,125 @@ TEST(FilterIteratorTest, RandomData) {
 
     auto range = iterator::filter_range(data.begin(), data.end(), [](int v){ return v > 500; });
     std::vector<int> result(range.begin(), range.end());
-    ASSERT_EQ(result, expected);
+    EXPECT_EQ(result, expected);
 }
 
-TEST(FilterIteratorTest, CustomType) {
-    std::vector<CustomStruct> data = {{1, "Kovalenko Pavel"}, {2, "Kvasnikov Lev"}, {3, "Trifautsan Artem"}, {4, "Shidlovskaia Kristina"}};
+TYPED_TEST(FilterIteratorTypedTest, CStyle) {
+    using paramtype = typename TypeParam::value_type;
+    paramtype arr[6] = {};
+    std::vector<paramtype> expected;
+
+    if constexpr (std::is_same_v<paramtype, char> || std::is_same_v<paramtype, unsigned char>) {
+        paramtype arr_[6] = {6, 9, 0, 1, 2, 3};
+        memcpy(arr, arr_, sizeof(arr));
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, short> || std::is_same_v<paramtype, unsigned short>) {
+        paramtype arr_[6] = {6, 9, 0, 1, 2, 3};
+        memcpy(arr, arr_, sizeof(arr));
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, int> || std::is_same_v<paramtype, unsigned int>) {
+        paramtype arr_[6] = {6, 9, 0, 1, 2, 3};
+        memcpy(arr, arr_, sizeof(arr));
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, long>) {
+        paramtype arr_[6] = {6, 9, 0, 1, 2, 3};
+        memcpy(arr, arr_, sizeof(arr));
+        expected = {6, 9, 3};
+    } else if constexpr (std::is_same_v<paramtype, float>) {
+        paramtype arr_[6] = {6.1f, 9.2f, 0.3f, 1.4f, 2.0f, 3.5f};
+        memcpy(arr, arr_, sizeof(arr));
+        expected = {6.1f, 9.2f, 3.5f};
+    } else if constexpr (std::is_same_v<paramtype, double>) {
+        paramtype arr_[6] = {6.1, 9.2, 0.3, 1.4, 2.0, 3.5};
+        memcpy(arr, arr_, sizeof(arr));
+        expected = {6.1, 9.2, 3.5};
+    }
+
+    auto range = iterator::filter_range(std::begin(arr), std::end(arr), [](paramtype val){ return val > 2; });
+
+    std::vector<paramtype> result;
+    std::copy(range.begin(), range.end(), std::back_inserter(result));
+
+    EXPECT_EQ(result.size(), expected.size());
+    auto res_it = result.begin();
+    auto exp_it = std::begin(expected);
+    for (; res_it != result.end(); ++res_it, ++exp_it) {
+        if constexpr (std::is_floating_point_v<paramtype>) {
+            EXPECT_NEAR(*res_it, *exp_it, 10e-6);
+        } else {
+            EXPECT_EQ(*res_it, *exp_it);
+        }
+    }
+}
+
+TEST(FilterIteratorTypedTest, CustomType) {
+    std::vector<CustomStruct> data = {{1, "Kovalenko Pavel"}, {2, "Kvasnikov Lev"},
+        {3, "Trifautsan Artem"}, {4, "Shidlovskaia Kristina"}};
     std::vector<CustomStruct> expected = {{1, "Kovalenko Pavel"}, {2, "Kvasnikov Lev"}};
 
     auto range = iterator::filter_range(data.begin(), data.end(), [](const CustomStruct &s) {
         return s.data.rfind("K", 0) == 0;
     });
+
     std::vector<CustomStruct> result(range.begin(), range.end());
-    ASSERT_EQ(result, expected);
+    EXPECT_EQ(result, expected);
+}
+
+TEST(FilterIteratorTypedTest, Operators) {
+    std::vector<int> data = {1, 2, 3, 4, 5, 6};
+    auto pred = [](int x){ return x % 2 == 0; };
+    iterator::filter_iterator it(data.begin(), data.end(), pred);
+
+    std::vector<std::string> data1 = {"lol", "kek"};
+    auto pred1 = [](std::string x){ return true; };
+    iterator::filter_iterator it1(data1.begin(), data1.end(), pred1);
+    EXPECT_EQ(it1->data(), data1[0].data());
+    ++it1;
+    EXPECT_EQ(it1->data(), data1[1].data());
+
+    // Test operator*
+    EXPECT_EQ(*it, 2);
+
+    // Test operator++
+    ++it;
+    EXPECT_EQ(*it, 4);
+
+    // Test operator++ (postfix)
+    it++;
+    EXPECT_EQ(*it, 6);
+
+    // Test operator== and operator!=
+    iterator::filter_iterator it2(data.begin(), data.end(), pred);
+    iterator::filter_iterator it3(data.begin(), data.end(), pred);
+    EXPECT_TRUE(it3 == it2);
+    ++it3;
+    EXPECT_TRUE(it3 != it2);
+
+}
+
+class MyComp {
+    public:
+    bool operator()(int a) {
+        count++;
+        return a > 2;
+    }
+    [[nodiscard]] int get() const {
+        return count;
+    }
+private:
+    int count {};
+};
+
+TEST(FilterIteratorTypedTest, CompareFunctionBehavior) {
+    std::vector vec = {1,2,3,4,5,6};
+    std::vector expected = {3,4,5,6};
+    MyComp Comp{};
+    auto range = iterator::filter_range(vec.begin(), vec.end(), std::ref(Comp));
+    std::vector result(range.begin(), range.end());
+    EXPECT_EQ(Comp.get(), 9);
+    Comp(0);
+    EXPECT_EQ(Comp.get(), 10);
+    EXPECT_EQ(result, expected);
 }
 
 int main(int argc, char **argv) {

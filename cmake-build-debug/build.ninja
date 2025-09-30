@@ -51,7 +51,7 @@ build cmake_object_order_depends_target_filteriterator_tests_sfinae: phony || cm
 
 build CMakeFiles/filteriterator_tests_sfinae.dir/tests.cpp.obj: CXX_COMPILER__filteriterator_tests_sfinae_unscanned_Debug C$:/Users/user/CLionProjects/filteriterator/tests.cpp || cmake_object_order_depends_target_filteriterator_tests_sfinae
   DEP_FILE = CMakeFiles\filteriterator_tests_sfinae.dir\tests.cpp.obj.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wcast-qual -Wshadow
   INCLUDES = -isystem C:/Users/user/CLionProjects/filteriterator/cmake-build-debug/_deps/googletest-src/googletest/include -isystem C:/Users/user/CLionProjects/filteriterator/cmake-build-debug/_deps/googletest-src/googletest
   OBJECT_DIR = CMakeFiles\filteriterator_tests_sfinae.dir
   OBJECT_FILE_DIR = CMakeFiles\filteriterator_tests_sfinae.dir
@@ -87,7 +87,7 @@ build cmake_object_order_depends_target_filteriterator_tests_concepts: phony || 
 build CMakeFiles/filteriterator_tests_concepts.dir/tests.cpp.obj: CXX_COMPILER__filteriterator_tests_concepts_unscanned_Debug C$:/Users/user/CLionProjects/filteriterator/tests.cpp || cmake_object_order_depends_target_filteriterator_tests_concepts
   DEFINES = -DUSE_CONCEPTS
   DEP_FILE = CMakeFiles\filteriterator_tests_concepts.dir\tests.cpp.obj.d
-  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wcast-qual -Wshadow
   INCLUDES = -isystem C:/Users/user/CLionProjects/filteriterator/cmake-build-debug/_deps/googletest-src/googletest/include -isystem C:/Users/user/CLionProjects/filteriterator/cmake-build-debug/_deps/googletest-src/googletest
   OBJECT_DIR = CMakeFiles\filteriterator_tests_concepts.dir
   OBJECT_FILE_DIR = CMakeFiles\filteriterator_tests_concepts.dir

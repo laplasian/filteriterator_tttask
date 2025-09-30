@@ -17,7 +17,7 @@ namespace iterator {
         using iterator_category = std::forward_iterator_tag;
 
         filter_iterator() = default;
-        filter_iterator(Iterator current, Iterator last, Predicate pred): current_(current), last_(last), pred_(pred) {
+        filter_iterator(Iterator current, Iterator last, Predicate& pred): current_(current), last_(last), pred_(pred) {
             find_next_valid();
         }
 
@@ -49,7 +49,7 @@ namespace iterator {
 
         Iterator current_{};
         Iterator last_{};
-        Predicate pred_;
+        Predicate& pred_;
     };
 
     template<class Iterator>
@@ -58,7 +58,7 @@ namespace iterator {
         using Predicate = std::function<bool(const typename std::iterator_traits<Iterator>::value_type&)>;
         using iterator = filter_iterator<Iterator,Predicate>;
 
-        filter_range(Iterator first, Iterator last, Predicate pred): first_(first), last_{last}, pred_(pred) {};
+        filter_range(Iterator first, Iterator last, Predicate && pred): first_(first), last_{last}, pred_(std::move(pred)) {};
 
         iterator begin() noexcept {
             return filter_iterator(first_,last_,pred_);

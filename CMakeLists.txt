@@ -11,6 +11,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
+add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wcast-qual -Wshadow)
+
 enable_testing()
 
 add_executable(filteriterator_tests_sfinae tests.cpp)
