@@ -32,8 +32,11 @@ using MyTypes = ::testing::Types<MAKE_RA_ITERS(char), MAKE_RA_ITERS(unsigned cha
 
 TYPED_TEST_CASE(FilterIteratorTypedTest, MyTypes);
 
-/// OPERATOR TESTs
-/// cstyle
+template <typename T>
+class FilterIteratorParamTest : public ::testing::Test {};
+using MyParams = ::testing::Types<char, unsigned char, short, unsigned short, int, long, float, double>;
+
+TYPED_TEST_CASE(FilterIteratorParamTest, MyParams);
 
 TYPED_TEST(FilterIteratorTypedTest, FiltersValues) {
     using paramtype = typename TypeParam::value_type;
@@ -175,8 +178,8 @@ TEST(FilterIteratorTypedTest, RandomData) {
     EXPECT_EQ(result, expected);
 }
 
-TYPED_TEST(FilterIteratorTypedTest, CStyle) {
-    using paramtype = typename TypeParam::value_type;
+TYPED_TEST(FilterIteratorParamTest, CStyle) {
+    using paramtype = TypeParam;
     paramtype arr[6] = {};
     std::vector<paramtype> expected;
 
@@ -236,36 +239,53 @@ TEST(FilterIteratorTypedTest, CustomType) {
     EXPECT_EQ(result, expected);
 }
 
-TEST(FilterIteratorTypedTest, Operators) {
-    std::vector<int> data = {1, 2, 3, 4, 5, 6};
-    auto pred = [](int x){ return x % 2 == 0; };
-    iterator::filter_iterator it(data.begin(), data.end(), pred);
+TYPED_TEST(FilterIteratorTypedTest, Operators) {
 
-    std::vector<std::string> data1 = {"lol", "kek"};
-    auto pred1 = [](std::string x){ return true; };
-    iterator::filter_iterator it1(data1.begin(), data1.end(), pred1);
-    EXPECT_EQ(it1->data(), data1[0].data());
-    ++it1;
-    EXPECT_EQ(it1->data(), data1[1].data());
+    using paramtype = typename TypeParam::value_type;
+    TypeParam data;
 
+    if constexpr (std::is_same_v<paramtype, char> || std::is_same_v<paramtype, unsigned char>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, short> || std::is_same_v<paramtype, unsigned short>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, int> || std::is_same_v<paramtype, unsigned int>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, long>) {
+        data = {10, 20, 30};
+    } else if constexpr (std::is_same_v<paramtype, float>) {
+        data = {10.0f, 20.0f, 30.0f};
+    } else if constexpr (std::is_same_v<paramtype, double>) {
+        data = {10.0, 20.0, 30.0};
+    }
+
+    auto pred = [](paramtype x){ return static_cast<int>(x) % 2 == 0; };
+    auto it = iterator::filter_range(data.begin(), data.end(), pred).begin();
     // Test operator*
-    EXPECT_EQ(*it, 2);
+    EXPECT_EQ(*it, static_cast<paramtype>(10));
 
     // Test operator++
     ++it;
-    EXPECT_EQ(*it, 4);
+    EXPECT_EQ(*it, static_cast<paramtype>(20));
 
     // Test operator++ (postfix)
     it++;
-    EXPECT_EQ(*it, 6);
+    EXPECT_EQ(*it, static_cast<paramtype>(30));
 
     // Test operator== and operator!=
-    iterator::filter_iterator it2(data.begin(), data.end(), pred);
-    iterator::filter_iterator it3(data.begin(), data.end(), pred);
+    auto it2 = iterator::filter_range(data.begin(), data.end(), pred).begin();
+    auto it3 = iterator::filter_range(data.begin(), data.end(), pred).begin();
     EXPECT_TRUE(it3 == it2);
     ++it3;
     EXPECT_TRUE(it3 != it2);
+}
 
+TEST(FilterIteratorTypedTest, TestMemberOper) {
+    auto pred = [](std::string x){ return true; };
+    std::vector<std::string> data = {"lol", "kek"};
+    auto it1 = iterator::filter_range(data.begin(), data.end(), pred).begin();
+    EXPECT_EQ((it1)->data(), data[0].data());
+    ++it1;
+    EXPECT_EQ((it1)->data(), data[1].data());
 }
 
 class MyComp {
@@ -290,6 +310,10 @@ TEST(FilterIteratorTypedTest, CompareFunctionBehavior) {
     EXPECT_EQ(Comp.get(), 9);
     Comp(0);
     EXPECT_EQ(Comp.get(), 10);
+    auto it = range.begin();
+    EXPECT_EQ(Comp.get(), 13);
+    ++it;
+    EXPECT_EQ(Comp.get(), 14);
     EXPECT_EQ(result, expected);
 }
 
